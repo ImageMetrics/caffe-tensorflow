@@ -13,6 +13,16 @@ The output consists of two files:
 1. A data file (in NumPy's native format) containing the model's learned parameters.
 2. A Python class that constructs the model's graph.
 
+Run `pack-pb.py` to pack code and data to pb file
+
+before packing, you need generate code and data first
+
+e.g. convert caffe alexnet to tensorflow pb file
+
+1. `./convert.py ~/caffe/models/bvlc_alexnet/deploy.prototxt --caffemodel ~/caffe/models/bvlc_alexnet/bvlc_alexnet.caffemodel --data-output-path=AlexNet.npy --code-output-path=AlexNet.py`
+2. `python pack-pb.py  --model AlexNet`
+
+
 ### Examples
 
 See the [examples](examples/) folder for more details.
