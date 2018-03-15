@@ -5,12 +5,11 @@ import sys
 import tensorflow as tf
 from tensorflow.python.framework.graph_util import convert_variables_to_constants
 
-def convert(model,output,shape):
-    from alexnet import AlexNet as MyNet
-    MyNet=getattr(__import__(model),model) 
+def convert(model,input,output,shape):
+    MyNet=getattr(__import__(model),model)
     batch_size = 1
-    data_node = tf.placeholder(tf.float32, shape)
-    net = MyNet({'data': data_node})
+    data_node = tf.placeholder(tf.float32, shape, name=input)
+    net = MyNet({input: data_node})
     model_dir='./'
     with tf.Session() as sess:
         output_graph = sess._graph
@@ -24,10 +23,12 @@ def main():
     input_channel=3
     input_batch=1
     model="LeNet"
+    input="data"
     output="prob"
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", help="model name")
+    parser.add_argument("--input", help="input name")
     parser.add_argument("--output", help="output name")
     parser.add_argument("--input_height", type=int, help="input height")
     parser.add_argument("--input_width", type=int, help="input width")
@@ -48,8 +49,10 @@ def main():
        model = args.model
     if args.output:
        output = args.output
+    if args.input:
+        input = args.input
 
-    convert(model,output,(input_batch,input_height,input_width,input_channel))
+    convert(model,input,output,(input_batch,input_height,input_width,input_channel))
 
 
 if __name__ == '__main__':
