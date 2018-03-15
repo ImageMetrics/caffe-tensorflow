@@ -14,8 +14,13 @@ def convert(model,input,output,shape):
     with tf.Session() as sess:
         output_graph = sess._graph
         net.load(data_path=model+'.npy', session=sess)
-        graph = convert_variables_to_constants(sess, sess.graph_def, [output])
-        tf.train.write_graph(graph, '.', model+'.pb', as_text=False)
+        try:
+          graph = convert_variables_to_constants(sess, sess.graph_def, [output])
+          tf.train.write_graph(graph, '.', model + '.pb', as_text=False)
+        except:
+          print 'Valid nodes are:'
+          for node in sess.graph_def.node:
+            print '  ' + node.name
 
 def main():
     input_height = 227
