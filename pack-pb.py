@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
 import argparse
-import sys
+import sys, traceback
 import tensorflow as tf
 from tensorflow.python.framework.graph_util import convert_variables_to_constants
 
 def convert(model,input,output,shape):
     MyNet=getattr(__import__(model),model)
-    batch_size = 1
     data_node = tf.placeholder(tf.float32, shape, name=input)
     net = MyNet({input: data_node})
     model_dir='./'
@@ -17,7 +16,8 @@ def convert(model,input,output,shape):
         try:
           graph = convert_variables_to_constants(sess, sess.graph_def, [output])
           tf.train.write_graph(graph, '.', model + '.pb', as_text=False)
-        except:
+        except Exception, e:
+          traceback.print_exc()
           print 'Valid nodes are:'
           for node in sess.graph_def.node:
             print '  ' + node.name
