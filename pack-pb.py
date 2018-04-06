@@ -23,6 +23,7 @@ def convert(model,input,output,shape):
           print 'Valid nodes are:'
           for node in sess.graph_def.node:
             print '  ' + node.name
+          exit(-1)
 
 def main():
     input_height = 227
