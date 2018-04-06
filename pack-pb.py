@@ -5,6 +5,8 @@ import sys, traceback
 import tensorflow as tf
 from tensorflow.python.framework.graph_util import convert_variables_to_constants
 
+sys.path.insert(0, './')
+
 def convert(model,input,output,shape):
     MyNet=getattr(__import__(model),model)
     data_node = tf.placeholder(tf.float32, shape, name=input)
