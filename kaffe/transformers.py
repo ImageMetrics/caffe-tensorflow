@@ -137,7 +137,22 @@ class DataReshaper(object):
                 node.reshaped_data = weights.reshape(fc_shape[transpose_order[0]],
                                                      fc_shape[transpose_order[1]])
             else:
+              if weights.ndim > 1:
                 node.reshaped_data = weights.transpose(transpose_order)
+              else:
+                # Here we are going to turn our 1-by-x into a 2-by-x
+                x = np.asmatrix(weights.flatten())
+                x2 = np.append(x, x, axis=0)
+                x2 = np.asarray(x2)
+
+                # Do the biases too
+                bias = node.data[1]
+                b2 = np.append(bias, bias)
+                node.data[1] = b2
+
+                # Set the new output shape
+                node.parameters.num_output = 2
+                node.reshaped_data = np.transpose(x2)
 
         if self.replace:
             for node in graph.nodes:
