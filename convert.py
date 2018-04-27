@@ -36,10 +36,10 @@ def convert(def_path, caffemodel_path, data_output_path, code_output_path, phase
             print_stderr('Saving source...')
             with open(code_output_path, 'wb') as src_out:
                 source = transformer.transform_source()
-                fileName = os.path.splitext(code_output_path)[0]
-                newStr = fileName + '(Network)'
-                source2 = source.replace('(Network)', newStr)
-                src_out.write(source2)
+                #fileName = os.path.splitext(code_output_path)[0]
+                #newStr = fileName + '(Network)'
+                #source2 = source.replace('(Network)', newStr)
+                src_out.write(source)
         print_stderr('Done.')
     except KaffeError as err:
         fatal_error('Error encountered: {}'.format(err))
