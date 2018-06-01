@@ -7,16 +7,18 @@ from tensorflow.python.framework.graph_util import convert_variables_to_constant
 
 sys.path.insert(0, './')
 
-def convert(model,input,output,shape):
+def convert(model,inputs,outputs,shape):
     MyNet=getattr(__import__(model),model)
-    data_node = tf.placeholder(tf.float32, shape, name=input)
-    net = MyNet({input: data_node})
+    inputArgs = {}
+    for input in inputs:
+        inputArgs[input] = tf.placeholder(tf.float32, shape, name=input)
+    net = MyNet(inputArgs)
     model_dir='./'
     with tf.Session() as sess:
         output_graph = sess._graph
         net.load(data_path=model+'.npy', session=sess)
         try:
-          graph = convert_variables_to_constants(sess, sess.graph_def, [output])
+          graph = convert_variables_to_constants(sess, sess.graph_def, outputs)
           tf.train.write_graph(graph, '.', model + '.pb', as_text=False)
         except Exception, e:
           traceback.print_exc()
@@ -31,13 +33,13 @@ def main():
     input_channel=3
     input_batch=1
     model="LeNet"
-    input="data"
-    output="prob"
+    inputs=["data"]
+    outputs=["prob"]
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", help="model name")
-    parser.add_argument("--input", help="input name")
-    parser.add_argument("--output", help="output name")
+    parser.add_argument("--input", action='append', help="input name")
+    parser.add_argument("--output", action='append', help="output name")
     parser.add_argument("--input_height", type=int, help="input height")
     parser.add_argument("--input_width", type=int, help="input width")
     parser.add_argument("--input_channel", type=int, help="input channel")
@@ -56,11 +58,11 @@ def main():
     if args.model:
        model = args.model
     if args.output:
-       output = args.output
+       outputs = args.output
     if args.input:
-        input = args.input
+       inputs = args.input
 
-    convert(model,input,output,(input_batch,input_height,input_width,input_channel))
+    convert(model,inputs,outputs,(input_batch,input_height,input_width,input_channel))
 
 
 if __name__ == '__main__':
