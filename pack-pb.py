@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import json
 import sys, traceback
 import tensorflow as tf
 from tensorflow.python.framework.graph_util import convert_variables_to_constants
@@ -43,24 +44,46 @@ def main():
     parser.add_argument("--input_height", type=int, help="input height")
     parser.add_argument("--input_width", type=int, help="input width")
     parser.add_argument("--input_channel", type=int, help="input channel")
+    parser.add_argument('--input-list-path', help='Input layer names list file path')
+    parser.add_argument('--input-shape-list-path', help='Input layer shape list file path')
+    parser.add_argument('--output-list-path', help='Output layer names list file path')
     parser.add_argument("--input_batch", type=int, help="input batch")
     args = parser.parse_args()
 
-    if args.input_height:
-       input_height = args.input_height
-    if args.input_width:
-       input_width = args.input_width
-    if args.input_channel:
-       input_channel = args.input_channel
+    if args.input_list_path:
+        input_list_str = open(args.input_list_path, 'rb').read()
+        inputs = json.loads(input_list_str)
+        inputs = [y for x in inputs for y in x] # https://coderwall.com/p/rcmaea/flatten-a-list-of-lists-in-one-line-in-python
+    elif args.input:
+        inputs = args.input
+
+    if args.input_shape_list_path:
+        input_shape_list_str = open(args.input_shape_list_path, 'rb').read()
+        input_shape_list = json.loads(input_shape_list_str)
+        input_shapes = [y for x in input_shape_list for y in x] # https://coderwall.com/p/rcmaea/flatten-a-list-of-lists-in-one-line-in-python
+        input_width = input_shapes[0][0]
+        input_height = input_shapes[0][1]
+        input_channel = input_shapes[0][2]
+    else:
+        if args.input_height:
+            input_height = args.input_height
+        if args.input_width:
+            input_width = args.input_width
+        if args.input_channel:
+            input_channel = args.input_channel
+
+    if args.output_list_path:
+        output_list_str = open(args.output_list_path, 'rb').read()
+        outputs = json.loads(output_list_str)
+        outputs = ['{0}/{0}'.format(output) for output in outputs]
+    elif args.output:
+        outputs = args.output
+
     if args.input_batch:
-       input_batch = args.input_batch
+        input_batch = args.input_batch
 
     if args.model:
-       model = args.model
-    if args.output:
-       outputs = args.output
-    if args.input:
-       inputs = args.input
+        model = args.model
 
     convert(model,inputs,outputs,(input_batch,input_height,input_width,input_channel))
 
