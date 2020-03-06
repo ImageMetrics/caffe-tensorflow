@@ -257,5 +257,5 @@ class Network(object):
         input = tf.transpose(input,(0,3,1,2))
         dim = 1
         for d in input.get_shape()[1:].as_list():
-                dim *= d
+          dim *= d
         return tf.reshape(input,[-1,dim],name = name)

@@ -139,7 +139,7 @@ class TensorFlowMapper(NodeMapper):
         return TensorFlowNode('lrn', int(params.local_size / 2), alpha, params.beta)
 
     def map_concat(self, node):
-        if node.parents[0].kind == 'Flatten':
+        if node.parents[0].output_shape[2] == 1 and node.parents[0].output_shape[3] == 1:
             axis = node.parameters.axis
         else :    
             axis = (2, 3, 1, 0)[node.parameters.axis]
