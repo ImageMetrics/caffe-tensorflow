@@ -39,16 +39,16 @@ def convert(def_path, caffemodel_path, data_output_path, code_output_path, input
         if input_list_path or input_shape_list_path or output_list_path:
             mapper = TensorFlowMapper(transformer.graph)
             chains = mapper.map()
+            inputs = [x.name for x in transformer.graph.get_input_nodes()]
+            input_shapes = [[node.output_shape.width, node.output_shape.height, node.output_shape.channels] for node in transformer.graph.get_input_nodes()]
+            outputs = [x.name for x in transformer.graph.get_output_nodes()]            
             if input_list_path:
-                inputs = [[chain[0].node.parents[0].name for node in chain[0].node.parents] for chain in chains]
                 with open(input_list_path, 'wb') as input_list_out:
                     json.dump(inputs, input_list_out)
             if input_shape_list_path:
-                shapes = [[[node.output_shape.width, node.output_shape.height, node.output_shape.channels] for node in chain[0].node.parents] for chain in chains]
                 with open(input_shape_list_path, 'wb') as input_shape_list_out:
-                    json.dump(shapes, input_shape_list_out)
+                    json.dump(input_shapes, input_shape_list_out)
             if output_list_path:
-                outputs = [chain[-1].node.name for chain in chains]
                 with open(output_list_path, 'wb') as output_list_out:
                     json.dump(outputs, output_list_out)
         print_stderr('Done.')

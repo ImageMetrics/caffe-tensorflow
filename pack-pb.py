@@ -8,11 +8,12 @@ from tensorflow.python.framework.graph_util import convert_variables_to_constant
 
 sys.path.insert(0, './')
 
-def convert(model,inputs,outputs,shape):
+def convert(model,inputs,outputs,input_shapes):
     MyNet=getattr(__import__(model),model)
     inputArgs = {}
-    for input in inputs:
-        inputArgs[input] = tf.placeholder(tf.float32, shape, name=input)
+    assert(len(inputs) == len(input_shapes))
+    for i in range(len(inputs)):
+        inputArgs[inputs[i]] = tf.placeholder(tf.float32, input_shapes[i], name=inputs[i])
     net = MyNet(inputArgs)
     model_dir='./'
     with tf.Session() as sess:
@@ -53,17 +54,14 @@ def main():
     if args.input_list_path:
         input_list_str = open(args.input_list_path, 'rb').read()
         inputs = json.loads(input_list_str)
-        inputs = [y for x in inputs for y in x] # https://coderwall.com/p/rcmaea/flatten-a-list-of-lists-in-one-line-in-python
     elif args.input:
         inputs = args.input
 
     if args.input_shape_list_path:
         input_shape_list_str = open(args.input_shape_list_path, 'rb').read()
         input_shape_list = json.loads(input_shape_list_str)
-        input_shapes = [y for x in input_shape_list for y in x] # https://coderwall.com/p/rcmaea/flatten-a-list-of-lists-in-one-line-in-python
-        input_width = input_shapes[0][0]
-        input_height = input_shapes[0][1]
-        input_channel = input_shapes[0][2]
+        #these shapes were stored in [w,h,c] and we need [b,h,w,c]
+        input_shapes = [[input_batch,y[1],y[0],y[2]] for y in input_shape_list]
     else:
         if args.input_height:
             input_height = args.input_height
@@ -71,6 +69,7 @@ def main():
             input_width = args.input_width
         if args.input_channel:
             input_channel = args.input_channel
+        input_shapes = [[input_batch,input_height,input_width,input_channel]]
 
     if args.output_list_path:
         output_list_str = open(args.output_list_path, 'rb').read()
@@ -85,7 +84,7 @@ def main():
     if args.model:
         model = args.model
 
-    convert(model,inputs,outputs,(input_batch,input_height,input_width,input_channel))
+    convert(model,inputs,outputs,input_shapes)
 
 
 if __name__ == '__main__':
